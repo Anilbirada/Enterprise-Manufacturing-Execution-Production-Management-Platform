@@ -1,0 +1,44 @@
+import { Router } from 'express';
+import authRoutes from './authRoutes';
+import userRoutes from './userRoutes';
+import masterDataRoutes from './masterDataRoutes';
+import workOrderRoutes from './workOrderRoutes';
+import planningRoutes from './planningRoutes';
+import executionRoutes from './executionRoutes';
+import downtimeRoutes from './downtimeRoutes';
+import andonRoutes from './andonRoutes';
+import qualityRoutes from './qualityRoutes';
+import oeeRoutes from './oeeRoutes';
+import dashboardRoutes from './dashboardRoutes';
+import traceabilityRoutes from './traceabilityRoutes';
+import maintenanceRoutes from './maintenanceRoutes';
+import instructionRoutes from './instructionRoutes';
+import inventoryRoutes from './inventoryRoutes';
+import reportRoutes from './reportRoutes';
+import notificationRoutes from './notificationRoutes';
+import auditRoutes from './auditRoutes';
+import integrationRoutes from './integrationRoutes';
+
+const apiRouter = Router();
+
+apiRouter.use('/auth', authRoutes);
+apiRouter.use('/users', userRoutes);
+apiRouter.use('/master-data', masterDataRoutes);
+apiRouter.use('/work-orders', workOrderRoutes);
+apiRouter.use('/planning', planningRoutes);
+apiRouter.use('/execution', executionRoutes);
+apiRouter.use('/downtime', downtimeRoutes);
+apiRouter.use('/andon', andonRoutes);
+apiRouter.use('/quality', qualityRoutes);
+apiRouter.use('/oee', oeeRoutes);
+apiRouter.use('/dashboard', dashboardRoutes);
+apiRouter.use('/traceability', traceabilityRoutes);
+apiRouter.use('/maintenance', maintenanceRoutes);
+apiRouter.use('/instructions', instructionRoutes);
+apiRouter.use('/inventory', inventoryRoutes);
+apiRouter.use('/reports', reportRoutes);
+apiRouter.use('/notifications', notificationRoutes);
+apiRouter.use('/audit', auditRoutes);
+apiRouter.use('/integrations', integrationRoutes);
+
+export default apiRouter;

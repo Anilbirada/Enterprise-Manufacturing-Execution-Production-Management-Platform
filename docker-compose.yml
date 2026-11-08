@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: rsr_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: rsrfactory360
+    volumes:
+      - mongo-data:/data/db
+      - ./docker/backups:/var/backups/rsrfactory360
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rsr-net
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: rsr_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rsr-net
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.backend
+    container_name: rsr_backend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/rsrfactory360
+      - REDIS_URI=redis://redis:6379
+      - JWT_SECRET=rsr_mes_production_secure_signing_key_2026_industrial_grade
+      - CLIENT_ORIGIN=http://localhost
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rsr-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.frontend
+    container_name: rsr_frontend
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - rsr-net
+
+volumes:
+  mongo-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  rsr-net:
+    driver: bridge
