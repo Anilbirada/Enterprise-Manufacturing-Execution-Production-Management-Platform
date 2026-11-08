@@ -1,0 +1,21 @@
+{
+  "name": "rsr-factory360",
+  "version": "1.0.0",
+  "description": "RSR Factory360 - Enterprise Manufacturing Execution & Production Management Platform",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix backend install && npm --prefix backend run build && npm --prefix frontend install && npm --prefix frontend run build",
+    "start": "npm --prefix backend start",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev"
+  },
+  "keywords": [
+    "mes",
+    "manufacturing",
+    "oee",
+    "industry4.0",
+    "smart-factory"
+  ],
+  "author": "Anil (RSR Technologies)",
+  "license": "Proprietary"
+}

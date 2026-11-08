@@ -60,6 +60,36 @@ app.get('/api/health', (req, res) => {
 // Mount modular API Router
 app.use('/api', apiRouter);
 
+// Serve frontend SPA static files if built
+import path from 'path';
+import fs from 'fs';
+
+const potentialDistPaths = [
+  path.resolve(__dirname, '../../frontend/dist'),
+  path.resolve(__dirname, '../frontend/dist'),
+  path.resolve(process.cwd(), '../frontend/dist'),
+  path.resolve(process.cwd(), 'frontend/dist')
+];
+
+let staticDistPath = '';
+for (const p of potentialDistPaths) {
+  if (fs.existsSync(p)) {
+    staticDistPath = p;
+    break;
+  }
+}
+
+if (staticDistPath) {
+  app.use(express.static(staticDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+      return next();
+    }
+    res.sendFile(path.join(staticDistPath, 'index.html'));
+  });
+  console.log(`[Server] Serving frontend SPA from ${staticDistPath}`);
+}
+
 // Centralized error handler
 app.use(errorHandler);
 

@@ -1,0 +1,19 @@
+# Render Blueprint Specification for RSR Factory360 MES
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  # Option 1: Unified Full-Stack MES Web Service (Backend + Static Frontend)
+  - type: web
+    name: rsrfactory360-mes
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false # Set your MongoDB Atlas connection string here

@@ -33,7 +33,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [unreadNotificationCount, setUnreadNotificationCount] = useState<number>(0);
 
   useEffect(() => {
-    const s = io('/', {
+    const socketUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : '/';
+    const s = io(socketUrl, {
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 10
     });
