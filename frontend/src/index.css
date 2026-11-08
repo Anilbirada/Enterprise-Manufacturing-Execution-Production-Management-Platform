@@ -33,3 +33,120 @@
   min-height: 48px;
   min-width: 48px;
 }
+
+/* =========================================================================
+   KEN BURNS CINEMATIC INDUSTRIAL BACKGROUND ANIMATIONS
+   GPU-accelerated transforms for 8 distinct manufacturing environments
+   ========================================================================= */
+
+@keyframes kenburns-1 {
+  0% {
+    transform: scale(1.0) translate(0%, 0%);
+  }
+  100% {
+    transform: scale(1.08) translate(-1%, -0.6%);
+  }
+}
+
+@keyframes kenburns-2 {
+  0% {
+    transform: scale(1.06) translate(-2%, 0%);
+  }
+  100% {
+    transform: scale(1.06) translate(2%, 0%);
+  }
+}
+
+@keyframes kenburns-3 {
+  0% {
+    transform: scale(1.10) translate(0%, 1%);
+  }
+  100% {
+    transform: scale(1.02) translate(0%, -1%);
+  }
+}
+
+@keyframes kenburns-4 {
+  0% {
+    transform: scale(1.07) translate(2%, -0.5%);
+  }
+  100% {
+    transform: scale(1.07) translate(-2%, 0.5%);
+  }
+}
+
+@keyframes kenburns-5 {
+  0% {
+    transform: scale(1.02) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1.08) translate(1%, 1%);
+  }
+}
+
+@keyframes kenburns-6 {
+  0% {
+    transform: scale(1.06) translate(0%, -1.5%);
+  }
+  100% {
+    transform: scale(1.06) translate(0%, 1.5%);
+  }
+}
+
+@keyframes kenburns-7 {
+  0% {
+    transform: scale(1.09) translate(1.5%, 0%);
+  }
+  100% {
+    transform: scale(1.02) translate(-1.5%, 0%);
+  }
+}
+
+@keyframes kenburns-8 {
+  0% {
+    transform: scale(1.0) translate(0%, 0%);
+  }
+  100% {
+    transform: scale(1.07) translate(1%, -0.5%);
+  }
+}
+
+.animate-kb-1 {
+  animation: kenburns-1 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-2 {
+  animation: kenburns-2 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-3 {
+  animation: kenburns-3 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-4 {
+  animation: kenburns-4 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-5 {
+  animation: kenburns-5 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-6 {
+  animation: kenburns-6 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-7 {
+  animation: kenburns-7 7s ease-out forwards;
+  will-change: transform;
+}
+
+.animate-kb-8 {
+  animation: kenburns-8 7s ease-out forwards;
+  will-change: transform;
+}

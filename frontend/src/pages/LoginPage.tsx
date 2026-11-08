@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -8,9 +8,9 @@ import {
   Mail, 
   ArrowRight, 
   AlertCircle,
-  Activity,
-  CheckCircle2
+  Activity
 } from 'lucide-react';
+import { Factory360AnimatedBackground } from '../components/Factory360AnimatedBackground';
 
 export const LoginPage: React.FC = () => {
   const { login, setupRequired } = useAuth();
@@ -19,42 +19,6 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Background Video Architecture & Lifecycle State
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-  const [videoError, setVideoError] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  // Check user's OS prefers-reduced-motion setting
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleMotionPreference = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleMotionPreference);
-    return () => mediaQuery.removeEventListener('change', handleMotionPreference);
-  }, []);
-
-  // Performance optimization: Pause video playback when tab is hidden, resume when visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!videoRef.current) return;
-      if (document.hidden) {
-        videoRef.current.pause();
-      } else if (!prefersReducedMotion && !videoError) {
-        videoRef.current.play().catch(() => {
-          // Handled silently to avoid unhandled promise rejections on strict browser autoplay policies
-        });
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [prefersReducedMotion, videoError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,66 +47,13 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center p-4 relative overflow-hidden bg-[#030814] select-none">
       {/* =========================================================================
-          LAYER 1: CINEMATIC MANUFACTURING VIDEO BACKGROUND & POSTER FALLBACK
+          CONTINUOUS ANIMATED 8-FRAME MANUFACTURING INDUSTRIAL BACKGROUND
+          Cycles through 8 photorealistic manufacturing environments with Ken Burns motion
           ========================================================================= */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        {/* High-Resolution Poster Image (Visible during load, error, or reduced-motion) */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-opacity duration-1000"
-          style={{ backgroundImage: `url('/images/factory360-poster.jpg')` }}
-          aria-hidden="true"
-        />
-
-        {/* HTML5 Full-screen Background Video */}
-        {!prefersReducedMotion && !videoError && (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster="/images/factory360-poster.jpg"
-            onLoadedData={() => setVideoLoaded(true)}
-            onError={() => {
-              console.warn('[RSR Factory360] Background video unavailable, fallen back to poster image.');
-              setVideoError(true);
-            }}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              videoLoaded ? 'opacity-90' : 'opacity-0'
-            }`}
-            aria-hidden="true"
-          >
-            <source src="/videos/factory360-background.mp4" type="video/mp4" />
-            <source src="/videos/factory360-background.webm" type="video/webm" />
-          </video>
-        )}
-
-        {/* =========================================================================
-            LAYER 2: PREMIUM INDUSTRIAL MULTI-LAYER DARK OVERLAYS
-            ========================================================================= */}
-        {/* Deep navy color overlay [rgba(3, 8, 20, 0.76)] */}
-        <div className="absolute inset-0 bg-[#030814]/75 mix-blend-multiply" />
-
-        {/* Cinematic vertical gradient to ground the floor and header */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#020610] via-transparent to-[#020610]/85" />
-
-        {/* Edge vignette for focal concentration */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse at center, transparent 35%, rgba(2, 6, 16, 0.92) 100%)'
-          }}
-        />
-
-        {/* Subtle industrial grid texture overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#38bdf80a_1px,transparent_1px),linear-gradient(to_bottom,#38bdf80a_1px,transparent_1px)] bg-[size:4rem_4rem] mix-blend-overlay opacity-80" />
-
-        {/* Ambient atmospheric cyan flare at top-left */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      </div>
+      <Factory360AnimatedBackground />
 
       {/* =========================================================================
-          LAYER 3: FOREGROUND ENTERPRISE LOGIN CARD
+          FOREGROUND ENTERPRISE LOGIN CARD (CENTERED & 100% VISIBLE)
           ========================================================================= */}
       <div className="w-full max-w-md relative z-10 transition-all duration-700 ease-out animate-in fade-in slide-in-from-bottom-4">
         {/* Brand header */}
@@ -169,7 +80,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Login Form Glassmorphic Card */}
-        <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-700/70 border-t-cyan-500/80 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/95">
+        <div className="bg-slate-950/85 backdrop-blur-xl border border-slate-700/70 border-t-cyan-500/80 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/95">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center space-x-2">
               <span>Secure Enterprise Login</span>
@@ -289,4 +200,5 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+
 export default LoginPage;
