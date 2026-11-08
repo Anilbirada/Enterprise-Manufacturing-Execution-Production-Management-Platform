@@ -88,6 +88,15 @@ if (staticDistPath) {
     res.sendFile(path.join(staticDistPath, 'index.html'));
   });
   console.log(`[Server] Serving frontend SPA from ${staticDistPath}`);
+} else {
+  app.get('/', (req, res) => {
+    res.json({
+      status: 'ONLINE',
+      service: 'RSR Factory360 MES Backend Engine',
+      message: 'MES Backend is running. Frontend static build will be served once generated.',
+      health: '/api/health'
+    });
+  });
 }
 
 // Centralized error handler
@@ -110,7 +119,7 @@ if (process.env.NODE_ENV !== 'test') {
       // Start background read-only industrial telemetry simulation
       IndustrialSimulationAdapter.startSimulation(4000);
 
-      server.listen(PORT, () => {
+      server.listen(Number(PORT), '0.0.0.0', () => {
         console.log(`====================================================`);
         console.log(`🚀 RSR FACTORY360 MES BACKEND RUNNING ON PORT ${PORT}`);
         console.log(`🏭 Industrial Hub: Jigani & Bommasandra, Bengaluru`);

@@ -1,19 +1,30 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
-let memoryServer: MongoMemoryServer | null = null;
+let memoryServer: any = null;
 
 export const connectDB = async (): Promise<void> => {
   const uri = process.env.MONGODB_URI;
 
   try {
     if (uri) {
-      console.log(`[DB] Attempting connection to configured MongoDB: ${uri.replace(/\/\/.*@/, '//***@')}`);
+      console.log(`[DB] Attempting connection to MongoDB: ${uri.replace(/\/\/.*@/, '//***@')}`);
       await mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 10000,
       });
       console.log('[DB] MongoDB Connected successfully.');
       return;
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      console.error('========================================================================');
+      console.error('🚨 [FATAL CONFIGURATION ERROR] MONGODB_URI is missing on Render!');
+      console.error('RSR Factory360 MES requires a MongoDB connection string in production.');
+      console.error('Please configure MONGODB_URI in your Render Dashboard:');
+      console.error('  1. Open Render Dashboard -> Service -> Environment');
+      console.error('  2. Add Key: MONGODB_URI');
+      console.error('  3. Add Value: mongodb+srv://<user>:<password>@cluster0.xyz.mongodb.net/rsrfactory360?retryWrites=true&w=majority');
+      console.error('========================================================================');
+      throw new Error('MONGODB_URI environment variable is required in production.');
     }
 
     // Try standard localhost:27017 first
@@ -28,16 +39,23 @@ export const connectDB = async (): Promise<void> => {
       console.log('[DB] Local MongoDB instance not active. Starting embedded MongoDB engine for self-contained operation...');
     }
 
-    // Fallback to embedded MongoDB
-    memoryServer = await MongoMemoryServer.create({
-      instance: {
-        dbName: 'rsrfactory360',
-        port: 27017
-      }
-    });
-    const memoryUri = memoryServer.getUri();
-    await mongoose.connect(memoryUri);
-    console.log(`[DB] Embedded MongoDB engine initialized and connected at: ${memoryUri}`);
+    // Fallback to embedded MongoDB for local dev or tests
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { MongoMemoryServer } = require('mongodb-memory-server');
+      memoryServer = await MongoMemoryServer.create({
+        instance: {
+          dbName: 'rsrfactory360',
+          port: 27017
+        }
+      });
+      const memoryUri = memoryServer.getUri();
+      await mongoose.connect(memoryUri);
+      console.log(`[DB] Embedded MongoDB engine initialized and connected at: ${memoryUri}`);
+    } catch (memErr: any) {
+      console.error('[DB] Embedded MongoDB failed to initialize:', memErr.message);
+      throw memErr;
+    }
   } catch (err: any) {
     console.error('[DB] MongoDB connection failure:', err.message);
     throw err;
