@@ -2,6 +2,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { Server as SocketIOServer } from 'socket.io';
 import { connectDB } from './config/db';
 import apiRouter from './routes';
@@ -49,9 +50,11 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Health Check
 app.get('/api/health', (req, res) => {
+  const isDbConnected = mongoose.connection.readyState === 1;
   res.json({
-    status: 'ONLINE',
+    status: isDbConnected ? 'ONLINE' : 'DEGRADED',
     service: 'RSR Factory360 MES Backend Engine',
+    database: isDbConnected ? 'CONNECTED' : 'CONNECTING_OR_DISCONNECTED',
     timestamp: new Date(),
     uptimeSeconds: Math.floor(process.uptime())
   });
@@ -106,29 +109,44 @@ const PORT = process.env.PORT || 5000;
 
 export { app, server };
 
-if (process.env.NODE_ENV !== 'test') {
-  connectDB()
-    .then(async () => {
-      // Check if DB needs initial seeding
+let isSeeded = false;
+
+const startDatabaseConnection = async () => {
+  try {
+    await connectDB();
+    if (!isSeeded) {
       const userCount = await User.countDocuments();
       if (userCount === 0) {
         console.log('[Server] First boot detected. Running initial factory master seeding...');
         await seedDatabase();
       }
+      isSeeded = true;
+    }
+    IndustrialSimulationAdapter.startSimulation(4000);
+  } catch (err: any) {
+    console.error('========================================================================');
+    console.error('⚠️ [DATABASE NOTICE] Database connection could not be established:');
+    console.error(`   ${err.message}`);
+    if (err.message && err.message.includes('querySrv ENOTFOUND')) {
+      console.error('👉 CAUSE: The MONGODB_URI in Render is using an example/placeholder cluster URL (cluster0.mongodb.net).');
+      console.error('👉 FIX: Go to MongoDB Atlas -> Database -> "Connect" -> Drivers -> Copy your actual cluster connection string (e.g., cluster0.xyz.mongodb.net).');
+    }
+    console.error('🔄 Will automatically retry connecting in 10 seconds...');
+    console.error('========================================================================');
+    setTimeout(startDatabaseConnection, 10000);
+  }
+};
 
-      // Start background read-only industrial telemetry simulation
-      IndustrialSimulationAdapter.startSimulation(4000);
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`====================================================`);
+    console.log(`🚀 RSR FACTORY360 MES BACKEND RUNNING ON PORT ${PORT}`);
+    console.log(`🏭 Industrial Hub: Jigani & Bommasandra, Bengaluru`);
+    console.log(`🔌 REST API & Real-time WebSockets Ready`);
+    console.log(`🌐 Application UI is LIVE on Render!`);
+    console.log(`====================================================`);
 
-      server.listen(Number(PORT), '0.0.0.0', () => {
-        console.log(`====================================================`);
-        console.log(`🚀 RSR FACTORY360 MES BACKEND RUNNING ON PORT ${PORT}`);
-        console.log(`🏭 Industrial Hub: Jigani & Bommasandra, Bengaluru`);
-        console.log(`🔌 REST API & Real-time WebSockets Ready`);
-        console.log(`====================================================`);
-      });
-    })
-    .catch((err) => {
-      console.error('[Server Start Failure]', err);
-      process.exit(1);
-    });
+    // Initiate background DB connection without crashing the HTTP server
+    startDatabaseConnection();
+  });
 }
